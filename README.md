@@ -1,1 +1,2 @@
-# Evarishtu-GrupoREMM-FullStack---Producto-2
+# GurpoREMM-FullStack
+Proyecto FullStack - Voluntariado
