@@ -11,7 +11,7 @@ const form_login = document.getElementById('login')
 if(form_login){
     form_login.addEventListener('submit', function(evento){
         evento.preventDefault();
-        checkUsuario();
+        loguearUsuario();
         form_login.reset();
     });
 }

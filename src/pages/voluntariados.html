@@ -82,10 +82,14 @@
     <script src="/src/js/listener.js" defer></script>
     <script src="/src/js/voluntariados.js" defer></script>
     <script src="/src/js/utils.js" defer></script>
+    <script src="/src/js/login.js" defer></script>
     <script>document.addEventListener('DOMContentLoaded', () => {
-        addMenu();
-        mostrarDatosVoluntariados();
-    });</script>
+        addMenu().then(() => {
+            mostrarDatosVoluntariados();
+            mostrarUsuarioActivo();
+        });
+    });
+    </script>
     </body>
 </body>
 </html>

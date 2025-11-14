@@ -11,7 +11,7 @@ function mostrarUsuarioActivo(){
     }
 }
 
-function checkUsuario(){
+function loguearUsuario(){
     const emailInput = document.getElementById('id');
     const passwordInput = document.getElementById('pass');
     const alerta = document.getElementById('alertaErrores');

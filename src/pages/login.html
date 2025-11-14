@@ -62,7 +62,10 @@
         <script src="/src/js/login.js" defer></script>
         <script src="/src/js/utils.js" defer></script>
         <script>document.addEventListener('DOMContentLoaded', () => {
-            addMenu();
-        });</script>
+            addMenu().then(() => {
+                mostrarUsuarioActivo();
+            });
+        });
+        </script>
     </body>
 </html>
