@@ -1,86 +1,80 @@
-function mostrarUsuarioActivo(){
-    const usuario_activo = localStorage.getItem('usuarioActivo');
-    const campo_usuario_activo = document.getElementById('usuario-logueado');
+function mostrarUsuarioActivo() {
+  const usuario_activo = obtenerUsuarioActivo();
+  const campo = document.getElementById('usuario-logueado');
 
-    if(campo_usuario_activo){
-        if(usuario_activo){
-            campo_usuario_activo.innerHTML = `${usuario_activo}`;
-        }
-    }else{
-        campo_usuario_activo.textContent = '';
-    }
+  if (!campo) return;
+
+  if (usuario_activo) {
+    campo.textContent = usuario_activo;
+  } else {
+    campo.textContent = '-no login-';
+  }
 }
 
-function checkUsuario(){
-    const emailInput = document.getElementById('id');
-    const passwordInput = document.getElementById('pass');
-    const alerta = document.getElementById('alertaErrores');
+function checkUsuario() {
+  const emailInput = document.getElementById('id');
+  const passwordInput = document.getElementById('pass');
+  const alerta = document.getElementById('alertaErrores');
 
-    alerta.classList.add('d-none', 'alert-danger'); 
-    alerta.classList.remove('alert-success', 'error-con-icono'); 
-    alerta.innerHTML = '';
+  // Reset alerta
+  alerta.classList.add('d-none');
+  alerta.innerHTML = '';
 
-    const usuario = emailInput.value.trim();
-    const password = passwordInput.value;
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+  let errores = [];
 
-    let errores = [];
+  if (!email) {
+    errores.push('<li>El campo Email es obligatorio.</li>');
+  } else if (!esEmailValido(email)) {
+    errores.push('<li>El formato del Email no es correcto.</li>');
+  }
 
-    if (usuario.length === 0) {
-        errores.push('<li>El campo Email es obligatorio.</li>');
-    } else if (!esEmailValido(usuario)) {
-        errores.push('<li>El formato del Email no es correcto.</li>');
+  if (!password) {
+    errores.push('<li>El campo Contraseña es obligatorio.</li>');
+  } else if (!esPasswordValido(password)) {
+    errores.push('<li>La contraseña debe tener exactamente 8 caracteres alfanuméricos.</li>');
+  }
+
+  if (errores.length > 0) {
+    alerta.innerHTML = 'Errores:<ul>' + errores.join('') + '</ul>';
+    alerta.classList.remove('d-none');
+    return;
+  }
+
+  const listaUsuarios = obtenerUsuarios();
+  let encontrado = null;
+
+  for (let i = 0; i < listaUsuarios.length; i++) {
+    if (listaUsuarios[i].email === email) {
+      encontrado = listaUsuarios[i];
+      break;
     }
-    
-    if (password.length === 0) {
-        errores.push('<li>El campo Contraseña es obligatorio.</li>');
-    } else if (!esPasswordValido(password)) { 
-        errores.push('<li>La Contraseña debe ser alfanumérica y tener exactamente 8 caracteres.</li>');
-    }
-    
-    if (errores.length > 0) {
-        alerta.innerHTML = 'Error de validación:<ul>' + errores.join('') + '</ul>';
+  }
 
-        alerta.classList.add('error-con-icono'); 
-        alerta.classList.remove('d-none'); 
-        return;
-    }
+  if (!encontrado) {
+    alerta.innerHTML = '<ul><li>El usuario no existe.</li></ul>';
+    alerta.classList.remove('d-none');
+    passwordInput.value = '';
+    return;
+  }
 
-    alerta.classList.remove('error-con-icono'); 
-    alerta.classList.add('d-none');
+  if (encontrado.password !== password) {
+    alerta.innerHTML = '<ul><li>Contraseña incorrecta.</li></ul>';
+    alerta.classList.remove('d-none');
+    passwordInput.value = '';
+    return;
+  }
 
-    let encontrado = false;
-    let sesion_exitosa = false;
-    let usuario_nombre = '';
+  guardarUsuarioActivo(encontrado.nombre);
+  mostrarUsuarioActivo();
 
-    for (let i = 0; i < usuarios.length; i++){
-        if (usuario === usuarios[i].email){
-            encontrado = true;
-            usuario_nombre = usuarios[i].nombre;
-            if(password === usuarios[i].password){
-                sesion_exitosa = true;
-            }
-            break;
-        }
-    }
-    if (sesion_exitosa) {
-
-        localStorage.setItem('usuarioActivo', usuario_nombre);
-        mostrarUsuarioActivo(); 
-
-        alerta.classList.remove('alert-danger', 'error-con-icono', 'd-none');
-        alerta.classList.add('alert-success'); 
-        alerta.innerHTML = `¡Sesión iniciada correctamente!<br>Bienvenid@, ${usuario_nombre}.`;
-        
-    } else {
-        alerta.classList.add('alert-danger', 'error-con-icono'); 
-        alerta.classList.remove('d-none');
-        
-        if (!encontrado) {
-            alerta.innerHTML = '<ul><li>El usuario no existe.</li></ul>';
-        } else {
-            alerta.innerHTML = '<ul><li>Contraseña incorrecta.</li></ul>';
-        }
-        
-        passwordInput.value = '';
-    }
+  alerta.classList.remove('d-none');
+  alerta.classList.remove('alert-danger');
+  alerta.classList.add('alert-success');
+  alerta.innerHTML = `¡Sesión iniciada correctamente!<br>Bienvenid@, ${encontrado.nombre}.`;
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  mostrarUsuarioActivo();
+});

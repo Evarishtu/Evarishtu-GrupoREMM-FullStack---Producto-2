@@ -1,91 +1,138 @@
-function addVoluntariado(){
-    const tituloInput = document.getElementById('titulo');
-    const usuarioInput = document.getElementById('usuario');
-    const fechaInput = document.getElementById('fecha');
-    const descripcionInput = document.getElementById('descripcion');
-    const tipoInput = document.getElementById('tipo');
+const DB_NAME = "VoluntariadoDB";
+const DB_VERSION = 2;
+let db = null;
 
-    const alerta = document.getElementById('alertaErrores');
+function abrirBDVoluntariados() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
 
-    alerta.classList.add('d-none');
-    alerta.classList.remove('error-con-icono');
-    alerta.innerHTML = '';
+    req.onupgradeneeded = function (event) {
+      const database = event.target.result;
 
-    const titulo = tituloInput.value.trim();
-    const usuario = usuarioInput.value.trim();
-    const fecha = fechaInput.value; 
-    const descripcion = descripcionInput.value.trim();
-    const tipo = tipoInput.value;
+      if (!database.objectStoreNames.contains("voluntariados")) {
+        const store = database.createObjectStore("voluntariados", {
+          keyPath: "id",
+          autoIncrement: true
+        });
 
-    let errores = [];
+        store.createIndex("titulo", "titulo", { unique: false });
+      }
+    };
 
-    if (titulo.length === 0) {
-        errores.push('<li>El campo Título es obligatorio.</li>');
-    }
-    if (usuario.length === 0) {
-        errores.push('<li>El campo Usuario es obligatorio.</li>');
-    }
-    if (fecha.length === 0) {
-        errores.push('<li>El campo Fecha es obligatorio.</li>');
-    }
-    if (descripcion.length === 0) {
-        errores.push('<li>El campo Descripción es obligatorio.</li>');
-    }
-    if (tipo === "" || tipo === null) { 
-        errores.push('<li>Debes seleccionar un Tipo de voluntariado.</li>');
-    }
+    req.onsuccess = function (event) {
+      db = event.target.result;
+      resolve(db);
+    };
 
-    if (errores.length > 0) {
-        alerta.innerHTML = 'Error al registrar:<ul>' + errores.join('') + '</ul>';
-        alerta.classList.add('error-con-icono'); 
-        alerta.classList.remove('d-none'); 
-        return;
-    }
+    req.onerror = function (event) {
+      console.error("Error al abrir IndexedDB:", event);
+      reject(event);
+    };
+  });
+}
 
-    alerta.classList.remove('error-con-icono'); 
-    alerta.classList.add('d-none');
+function addVoluntariado() {
+  const titulo = document.getElementById('titulo').value.trim();
+  const usuario = document.getElementById('usuario').value.trim();
+  const fecha = document.getElementById('fecha').value;
+  const descripcion = document.getElementById('descripcion').value.trim();
+  const tipo = document.getElementById('tipo').value;
 
-    const nuevo_voluntariado = {
-        titulo: titulo,
-        usuario: usuario,
-        fecha: fecha,
-        descripcion: descripcion,
-        tipo: tipo
-    }
-    voluntariados.push(nuevo_voluntariado);
+  const alerta = document.getElementById('alertaErrores');
+  alerta.classList.add('d-none');
+  alerta.innerHTML = "";
+
+  let errores = [];
+
+  if (!titulo) errores.push("<li>El campo Título es obligatorio.</li>");
+  if (!usuario) errores.push("<li>El campo Usuario es obligatorio.</li>");
+  if (!fecha) errores.push("<li>El campo Fecha es obligatorio.</li>");
+  if (!descripcion) errores.push("<li>El campo Descripción es obligatorio.</li>");
+  if (!tipo) errores.push("<li>Debes seleccionar un Tipo de voluntariado.</li>");
+
+  if (errores.length > 0) {
+    alerta.innerHTML = "Errores:<ul>" + errores.join('') + "</ul>";
+    alerta.classList.remove('d-none');
+    alerta.classList.add('error-con-icono');
+    return;
+  }
+
+  const nuevoVoluntariado = {
+    titulo,
+    usuario,
+    fecha,
+    descripcion,
+    tipo
+  };
+
+  const tx = db.transaction("voluntariados", "readwrite");
+  const store = tx.objectStore("voluntariados");
+
+  store.add(nuevoVoluntariado);
+
+  tx.oncomplete = () => {
     mostrarDatosVoluntariados();
-
-    const formulario = document.getElementById('alta');
-    formulario.reset();
+    document.getElementById("alta").reset();
+  };
 }
 
-function eliminarVoluntariado(indice){
-    voluntariados.splice(indice, 1);   
+function eliminarVoluntariado(id) {
+  const tx = db.transaction("voluntariados", "readwrite");
+  const store = tx.objectStore("voluntariados");
+
+  store.delete(id);
+
+  tx.oncomplete = () => {
     mostrarDatosVoluntariados();
+  };
 }
 
-function mostrarDatosVoluntariados(){
-    const form_voluntariados = document.querySelector('#consultaVoluntariados')
+function obtenerVoluntariadosBD() {
+  return new Promise((resolve) => {
+    const tx = db.transaction("voluntariados", "readonly");
+    const store = tx.objectStore("voluntariados");
 
-    form_voluntariados.innerHTML = '';
-        
-    let delay = 0;
-    for(let i = 0; i < voluntariados.length; i++){
-        
-        const fila =`
-            <tr class="fade-in-right" style="--d:${delay}ms">
-                <td>${voluntariados[i].titulo}</td>        
-                <td>${voluntariados[i].usuario}</td>       
-                <td>${voluntariados[i].fecha}</td>      
-                <td>${voluntariados[i].descripcion}</td>      
-                <td>${voluntariados[i].tipo}</td>
-            
-                <td>
-                    <button type="button" class="btn btn-primary bg-custom-blue w-100" onclick='eliminarVoluntariado(${i})'>Borrar</button>
-                </td>
-            </tr> 
-        `;
-        delay += 100;
-        form_voluntariados.innerHTML += fila;
-    }
+    const req = store.getAll();
+
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve([]);
+  });
 }
+
+async function mostrarDatosVoluntariados() {
+  const cuerpo = document.querySelector('#consultaVoluntariados');
+  cuerpo.innerHTML = "";
+
+  const lista = await obtenerVoluntariadosBD();
+
+  let delay = 0;
+
+  lista.forEach(v => {
+    const fila = `
+      <tr class="fade-in-right" style="--d:${delay}ms">
+        <td>${v.titulo}</td>
+        <td>${v.usuario}</td>
+        <td>${v.fecha}</td>
+        <td>${v.descripcion}</td>
+        <td>${v.tipo}</td>
+        <td>
+          <button class="btn btn-primary bg-custom-blue w-100"
+                  onclick="eliminarVoluntariado(${v.id})">
+            Borrar
+          </button>
+        </td>
+      </tr>
+    `;
+    cuerpo.innerHTML += fila;
+    delay += 100;
+  });
+}
+
+document.addEventListener("DOMContentLoaded", async function () {
+  await abrirBDVoluntariados();
+  mostrarDatosVoluntariados();
+});
+
+window.addVoluntariado = addVoluntariado;
+window.mostrarDatosVoluntariados = mostrarDatosVoluntariados;
+window.eliminarVoluntariado = eliminarVoluntariado;

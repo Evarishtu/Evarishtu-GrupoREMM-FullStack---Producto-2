@@ -1,82 +1,99 @@
-function addUsuario(){
-    const nombreInput = document.getElementById('nombre');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const alerta = document.getElementById('alertaErrores');
+function addUsuario() {
+  const nombreInput = document.getElementById('nombre');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const alerta = document.getElementById('alertaErrores');
 
-    alerta.classList.add('d-none');
-    alerta.classList.remove('error-con-icono');
-    alerta.innerHTML = '';
+  // Reset alertas
+  alerta.classList.add('d-none');
+  alerta.classList.remove('error-con-icono');
+  alerta.innerHTML = '';
 
-    const nombre = nombreInput.value.trim();
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+  const nombre = nombreInput.value.trim();
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+  let errores = [];
 
-    let errores = [];
+  if (!nombre) errores.push('<li>El campo Nombre es obligatorio.</li>');
 
-    if (nombre.length === 0) {
-        errores.push('<li>El campo Nombre es obligatorio.</li>');
-    }
-    
-    if (email.length === 0) {
-        errores.push('<li>El campo Email es obligatorio.</li>');
-    } else if (!esEmailValido(email)) {
-        errores.push('<li>El formato del Email no es correcto.</li>');
-    }
-    
-    if (password.length === 0) {
-        errores.push('<li>El campo Password es obligatorio.</li>');
-    } else if (!esPasswordValido(password)) { 
-        errores.push('<li>La Contraseña debe ser alfanumérica y tener exactamente 8 caracteres.</li>');
-    }
+  if (!email) {
+    errores.push('<li>El campo Email es obligatorio.</li>');
+  } else if (!esEmailValido(email)) {
+    errores.push('<li>El formato del Email no es correcto.</li>');
+  }
 
-    if (errores.length > 0) {
-        alerta.innerHTML = 'Error al registrar:<ul>' + errores.join('') + '</ul>';
-        
-        alerta.classList.add('error-con-icono'); 
-        alerta.classList.remove('d-none'); 
-        return;
-    }
+  if (!password) {
+    errores.push('<li>El campo Password es obligatorio.</li>');
+  } else if (!esPasswordValido(password)) {
+    errores.push('<li>La contraseña debe ser alfanumérica y tener exactamente 8 caracteres.</li>');
+  }
 
-    alerta.classList.remove('error-con-icono'); 
-    alerta.classList.add('d-none');
+  if (existeEmailUsuario(email)) {
+    errores.push('<li>Ya existe un usuario con ese email.</li>');
+  }
 
-    const nuevo_usuario = {
-        nombre,
-        email,
-        password
-    }
-    usuarios.push(nuevo_usuario);
-    mostrarDatosUsuarios();
+  if (errores.length > 0) {
+    alerta.innerHTML = 'Errores:<ul>' + errores.join('') + '</ul>';
+    alerta.classList.add('error-con-icono');
+    alerta.classList.remove('d-none');
+    return;
+  }
 
-    const formulario = document.getElementById('altaUsuario');
-    formulario.reset();
+  const nuevoUsuario = {
+    nombre,
+    email,
+    password
+  };
+
+  crearUsuario(nuevoUsuario);
+
+  mostrarDatosUsuarios();
+
+  document.getElementById('altaUsuario').reset();
 }
 
-function eliminarUsuario(indice){
-    usuarios.splice(indice, 1);   
-    mostrarDatosUsuarios();
+function eliminarUsuario(indice) {
+  borrarUsuarioPorIndice(indice);
+  mostrarDatosUsuarios();
 }
 
-function mostrarDatosUsuarios(){
-    const form_usuarios = document.querySelector('#consulta')
+function mostrarDatosUsuarios() {
+  const cuerpo = document.querySelector('#consulta');
+  const listaUsuarios = obtenerUsuarios();
 
-    form_usuarios.innerHTML = '';
-        
-    let delay = 0;
-    for(let i = 0; i < usuarios.length; i++){
-        
-        const fila =`
-            <tr class="fade-in-right" style="--d:${delay}ms">
-                <td>${usuarios[i].nombre}</td>        
-                <td>${usuarios[i].email}</td>       
-                <td>${usuarios[i].password}</td>
-                <td>
-                    <button type="button" class="btn btn-primary bg-custom-blue w-100" onclick='eliminarUsuario(${i})'>Borrar</button>
-                </td>
-            </tr> 
-        `;
-        delay += 100;
-        form_usuarios.innerHTML += fila;
-    }
+  cuerpo.innerHTML = '';
+  let delay = 0;
+
+  listaUsuarios.forEach(function (u, i) {
+    const fila = `
+      <tr class="fade-in-right" style="--d:${delay}ms">
+        <td>${u.nombre}</td>
+        <td>${u.email}</td>
+        <td>${u.password}</td>
+        <td>
+          <button type="button" class="btn btn-primary bg-custom-blue w-100"
+                  onclick="eliminarUsuario(${i})">Borrar</button>
+        </td>
+      </tr>
+    `;
+    cuerpo.innerHTML += fila;
+    delay += 100;
+  });
 }
+
+function actualizarUsuarioActivo() {
+  const activo = obtenerUsuarioActivo();
+  const campo = document.getElementById('usuario-logueado');
+  if (campo) {
+    campo.textContent = activo || '-no login-';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  actualizarUsuarioActivo();
+  mostrarDatosUsuarios();
+});
+
+window.addUsuario = addUsuario;
+window.eliminarUsuario = eliminarUsuario;
+window.mostrarDatosUsuarios = mostrarDatosUsuarios;
