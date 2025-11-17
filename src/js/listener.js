@@ -1,28 +1,37 @@
-const form_voluntariados = document.getElementById('alta');
-if (form_voluntariados) {
-  form_voluntariados.addEventListener('submit', function (evento) {
-    evento.preventDefault();
-    addVoluntariado();
-    form_voluntariados.reset();
-  });
-}
+document.addEventListener('DOMContentLoaded', function () {  
+  const form_voluntariados = document.getElementById('alta');
+  if (form_voluntariados) {
+    form_voluntariados.addEventListener('submit', function (evento) {
+      evento.preventDefault();
+      addVoluntariado();
+      form_voluntariados.reset();
+    });
+  }
 
-const form_login = document.getElementById('login');
-if (form_login) {
-  form_login.addEventListener('submit', function (evento) {
-    evento.preventDefault();
-    checkUsuario();
-  });
-}
+  const form_login = document.getElementById('login');
+  const loginButton = document.getElementById('loginButton');
+  if (form_login) {
+    form_login.addEventListener('submit', function (evento) {
+      evento.preventDefault();
+    });
+  }
+  if (loginButton) {
+    // Escucha directa del evento CLICK en el botón
+    loginButton.addEventListener('click', function (evento) {
+        evento.preventDefault(); 
+        manejarLogin(); 
+    });
+  }
 
-const form_usuarios = document.getElementById('altaUsuario');
-if (form_usuarios) {
-  form_usuarios.addEventListener('submit', function (evento) {
-    evento.preventDefault();
-    addUsuario();
-  });
-}
+  const form_usuarios = document.getElementById('altaUsuario');
+  if (form_usuarios) {
+    form_usuarios.addEventListener('submit', function (evento) {
+      evento.preventDefault();
+      addUsuario();
+    });
+  }
 
+});
 
 function addFlipCardListener() {
   const tarjetas = document.querySelectorAll('.flip-card-inner');
@@ -33,6 +42,5 @@ function addFlipCardListener() {
     });
   });
 }
-
 
 window.addFlipCardListener = addFlipCardListener;
