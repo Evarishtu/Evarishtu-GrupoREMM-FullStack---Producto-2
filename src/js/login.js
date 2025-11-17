@@ -11,13 +11,15 @@ function mostrarUsuarioActivo() {
   }
 }
 
-function checkUsuario() {
+function manejarLogin() {
   const emailInput = document.getElementById('id');
   const passwordInput = document.getElementById('pass');
   const alerta = document.getElementById('alertaErrores');
 
   // Reset alerta
   alerta.classList.add('d-none');
+  alerta.classList.remove('alert-success');
+  alerta.classList.add('alert-danger');
   alerta.innerHTML = '';
 
   const email = emailInput.value.trim();
@@ -41,40 +43,30 @@ function checkUsuario() {
     alerta.classList.remove('d-none');
     return;
   }
+  
+  // loguearUsuario() es la función de almacenaje.js que busca, valida la pass, y guarda la sesión.
+  const usuarioLogueado = loguearUsuario(email, password);
 
-  const listaUsuarios = obtenerUsuarios();
-  let encontrado = null;
-
-  for (let i = 0; i < listaUsuarios.length; i++) {
-    if (listaUsuarios[i].email === email) {
-      encontrado = listaUsuarios[i];
-      break;
-    }
-  }
-
-  if (!encontrado) {
-    alerta.innerHTML = '<ul><li>El usuario no existe.</li></ul>';
+  if (!usuarioLogueado) {
+    alerta.innerHTML = '<ul><li>Usuario o contraseña incorrectos.</li></ul>';
     alerta.classList.remove('d-none');
     passwordInput.value = '';
     return;
   }
 
-  if (encontrado.password !== password) {
-    alerta.innerHTML = '<ul><li>Contraseña incorrecta.</li></ul>';
-    alerta.classList.remove('d-none');
-    passwordInput.value = '';
-    return;
-  }
-
-  guardarUsuarioActivo(encontrado.nombre);
+  // Exito
   mostrarUsuarioActivo();
 
   alerta.classList.remove('d-none');
   alerta.classList.remove('alert-danger');
   alerta.classList.add('alert-success');
-  alerta.innerHTML = `¡Sesión iniciada correctamente!<br>Bienvenid@, ${encontrado.nombre}.`;
+  alerta.innerHTML = `¡Sesión iniciada correctamente!<br>Bienvenid@, ${usuarioLogueado.nombre}.`;
 }
 
 document.addEventListener('DOMContentLoaded', function () {
   mostrarUsuarioActivo();
 });
+
+// Exponer la función globalmente para que listener.js pueda llamarla
+window.manejarLogin = manejarLogin;
+window.mostrarUsuarioActivo = mostrarUsuarioActivo;
