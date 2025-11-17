@@ -142,12 +142,20 @@ function mostrarDashboard(voluntariadosList) {
   addFlipCardListener();
 }
 
+/**
+ * Inicializa el Dashboard: Muestra los voluntariados, configura las zonas de arrastre
+ * y carga el layout guardado.
+ * @param {Array<Object>} voluntariadosList - La lista de voluntariados recuperada.
+ */
 function initDashboard(voluntariadosList) {
   mostrarDashboard(voluntariadosList);
   setupDropZones();
   loadLayout();
 }
 
+/**
+ * Configura los event listeners para las zonas de soltado (drop zones).
+ */
 function setupDropZones() {
   document.querySelectorAll('.drop-zone').forEach(zone => {
     zone.addEventListener('dragover', dragoverHandler);
@@ -155,14 +163,26 @@ function setupDropZones() {
   });
 }
 
+/**
+ * Manejador del evento dragstart. Guarda el ID del elemento que se está arrastrando.
+ * @param {DragEvent} ev - Objeto evento de arrastre.
+ */
 function dragstartHandler(ev) {
   ev.dataTransfer.setData("text/plain", ev.currentTarget.id);
 }
 
+/**
+ * Manejador del evento dragover. Permite que el elemento sea soltado en la zona.
+ * @param {DragEvent} ev - Objeto evento de arrastre.
+ */
 function dragoverHandler(ev) {
   ev.preventDefault();
 }
 
+/**
+ * Manejador del evento drop. Mueve el elemento arrastrado a la nueva zona y guarda el layout.
+ * @param {DragEvent} ev - Objeto evento de arrastre.
+ */
 function dropHandler(ev) {
   ev.preventDefault();
   const data = ev.dataTransfer.getData("text/plain");
@@ -176,6 +196,9 @@ function dropHandler(ev) {
   saveLayout();
 }
 
+/**
+ * Guarda la disposición actual de las tarjetas en las zonas de soltado en localStorage.
+ */
 function saveLayout() {
   const boxes = document.querySelectorAll('.drop-zone[id]')
   const layout = {};
@@ -191,6 +214,9 @@ function saveLayout() {
   localStorage.setItem("layout", JSON.stringify(layout));
 }
 
+/**
+ * Carga la disposición de las tarjetas desde localStorage y las reubica en el DOM.
+ */
 function loadLayout() {
   const raw = localStorage.getItem("layout");
   if (!raw) return;
