@@ -12,18 +12,18 @@ function abrirBD() {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onupgradeneeded = function (event) {
-        const database = event.target.result;
+      const database = event.target.result;
 
-        if (database.objectStoreNames.contains("voluntariados")) {
-            database.deleteObjectStore("voluntariados");
-        }
+      if (database.objectStoreNames.contains("voluntariados")) {
+        database.deleteObjectStore("voluntariados");
+      }
 
-        const store = database.createObjectStore("voluntariados", {
-            keyPath: "id",
-            autoIncrement: true
-        });
+      const store = database.createObjectStore("voluntariados", {
+        keyPath: "id",
+        autoIncrement: true
+      });
 
-        store.createIndex("titulo", "titulo", { unique: false });
+      store.createIndex("titulo", "titulo", { unique: false });
     };
 
     request.onsuccess = function (event) {
@@ -111,29 +111,27 @@ function mostrarDashboard(voluntariadosList) {
     const textClass = 'text-white';
 
     const fila = `
-      <div class="col mb-3 fade-in-bottom">
-        <div class="flip-card">
-          <div class="flip-card-inner" data-id="${i}">
-            <div class="card p-3 card-front ${typeClass}">
-              <h5 class="card-title-lg ${textClass}">${item.titulo}</h5>
-              <p class="card-subtitle-sm mb-2 ${textClass}">${item.fecha}</p>
-              <p class="card-text-desc ${textClass}">${item.descripcion}</p>
-              <small class="card-subtitle mt-auto ${textClass}">
-                <strong>Publicado por:</strong><br> ${item.usuario}
-              </small>
-            </div>
-
-            <div class="card p-3 card-back image-back-styled ${typeClass}">
-              <div class="back-image-container">
-                <img src="${item.imagenFondo}" alt="${item.titulo}" class="img-fluid back-image-centered">
-              </div>
-              <div class="back-info-text-group mt-auto ${textClass}">
-                <h5>GRUPO REMM</h5>
-                <p class="mb-0">Des. full stack de sol. web JavaScript y serv. web</p>
-              </div>
-            </div>
-
+      <div class="flip-card" id="item-${i}" draggable="true" ondragstart="dragstartHandler(event)">
+        <div class="flip-card-inner" data-id="${i}">
+          <div class="card p-3 card-front ${typeClass}">
+            <h5 class="card-title-lg ${textClass}">${item.titulo}</h5>
+            <p class="card-subtitle-sm mb-2 ${textClass}">${item.fecha}</p>
+            <p class="card-text-desc ${textClass}">${item.descripcion}</p>
+            <small class="card-subtitle mt-auto ${textClass}">
+              <strong>Publicado por:</strong><br> ${item.usuario}
+            </small>
           </div>
+
+          <div class="card p-3 card-back image-back-styled ${typeClass}">
+            <div class="back-image-container">
+              <img src="${item.imagenFondo}" alt="${item.titulo}" class="img-fluid back-image-centered">
+            </div>
+            <div class="back-info-text-group mt-auto ${textClass}">
+              <h5>GRUPO REMM</h5>
+              <p class="mb-0">Des. full stack de sol. web JavaScript y serv. web</p>
+            </div>
+          </div>
+
         </div>
       </div>
     `;
@@ -142,6 +140,76 @@ function mostrarDashboard(voluntariadosList) {
   });
 
   addFlipCardListener();
+}
+
+function initDashboard(voluntariadosList) {
+  mostrarDashboard(voluntariadosList);
+  setupDropZones();
+  loadLayout();
+}
+
+function setupDropZones() {
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    zone.addEventListener('dragover', dragoverHandler);
+    zone.addEventListener('drop', dropHandler);
+  });
+}
+
+function dragstartHandler(ev) {
+  ev.dataTransfer.setData("text/plain", ev.currentTarget.id);
+}
+
+function dragoverHandler(ev) {
+  ev.preventDefault();
+}
+
+function dropHandler(ev) {
+  ev.preventDefault();
+  const data = ev.dataTransfer.getData("text/plain");
+  const draggedElement = document.getElementById(data);
+  const dropZone = ev.target.closest('.drop-zone');
+
+  if (draggedElement && dropZone) {
+    dropZone.appendChild(draggedElement);
+  }
+
+  saveLayout();
+}
+
+function saveLayout() {
+  const boxes = document.querySelectorAll('.drop-zone[id]')
+  const layout = {};
+
+  boxes.forEach(box => {
+    const boxId = box.id;
+    const childrenIds = Array.from(box.querySelectorAll('.flip-card'))
+      .map(el => el.id)
+      .filter(id => id);
+    layout[boxId] = childrenIds;
+  });
+
+  localStorage.setItem("layout", JSON.stringify(layout));
+}
+
+function loadLayout() {
+  const raw = localStorage.getItem("layout");
+  if (!raw) return;
+  let layout;
+  try {
+    layout = JSON.parse(raw);
+  } catch (e) {
+    console.error("Could not parse saved layout:", e);
+    return;
+  }
+
+  Object.keys(layout).forEach(boxId => {
+    const box = document.getElementById(boxId);
+    if (!box) return;
+    layout[boxId].forEach(itemId => {
+      const item = document.getElementById(itemId);
+      if (item) box.appendChild(item);
+    });
+  });
 }
 
 
@@ -159,5 +227,5 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   const lista = await obtenerVoluntariados();
 
-  mostrarDashboard(lista);
+  initDashboard(lista);
 });

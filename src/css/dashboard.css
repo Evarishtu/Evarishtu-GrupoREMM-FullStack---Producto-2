@@ -1,3 +1,7 @@
+#ofertas {
+    min-height: 300px;
+    min-width: 100%;
+}
 .bg-dark-type {
     background-color: var(--color-tarjeta-peticion);
     border: 1px solid var(--color-principal);
@@ -143,4 +147,10 @@
     .flip-card {
         height: 300px; 
     }
+}
+
+.repeat-two {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
 }
