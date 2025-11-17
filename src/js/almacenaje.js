@@ -94,6 +94,40 @@ function limpiarUsuarioActivo() {
   }
 }
 
+/**
+ * Autentica un usuario verificando las credenciales contra la lista almacenada.
+ * Cumple con el requisito de encapsular la lógica de autenticación en el módulo de persistencia.
+ * @param {string} email - Email proporcionado por el usuario.
+ * @param {string} password - Contraseña proporcionada por el usuario.
+ * @returns {Object|null} El objeto de usuario encontrado y logueado, o null si falla.
+ */
+function loguearUsuario(email, password) {
+    const listaUsuarios = obtenerUsuarios();
+    let encontrado = null;
+
+    // Buscar al usuario por email
+    for (let i = 0; i < listaUsuarios.length; i++) {
+        if (listaUsuarios[i].email === email) {
+            encontrado = listaUsuarios[i];
+            break;
+        }
+    }
+
+    if (!encontrado) {
+        return null; // El usuario no existe
+    }
+
+    // Verificar la contraseña
+    if (encontrado.password !== password) {
+        return null; // Contraseña incorrecta
+    }
+
+    // Si es exitoso, guardar el nombre del usuario activo
+    guardarUsuarioActivo(encontrado.nombre); 
+
+    return encontrado; // Retorna el objeto de usuario
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   inicializarUsuariosSiVacio();
 });
