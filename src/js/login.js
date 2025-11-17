@@ -1,3 +1,6 @@
+/**
+ * Muestra el nombre del usuario activo en el campo del menú o vista de login.
+ */
 function mostrarUsuarioActivo() {
   const usuario_activo = obtenerUsuarioActivo();
   const campo = document.getElementById('usuario-logueado');
@@ -11,6 +14,10 @@ function mostrarUsuarioActivo() {
   }
 }
 
+/**
+ * Maneja la lógica completa del formulario de login: valida campos, llama a loguearUsuario(),
+ * gestiona mensajes de error/éxito y actualiza el estado del usuario activo.
+ */
 function manejarLogin() {
   const emailInput = document.getElementById('id');
   const passwordInput = document.getElementById('pass');

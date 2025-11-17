@@ -1,3 +1,8 @@
+/**
+ * Carga el contenido del archivo 'menu.html' en el elemento con ID 'menu',
+ * y luego inicializa la animación del menú móvil y la gestión de enlaces activos.
+ * @returns {Promise<void>} Una promesa que resuelve al cargar y procesar el menú.
+ */
 function addMenu() {
   return fetch('/src/components/menu.html')
     .then(response => response.text())
@@ -11,7 +16,9 @@ function addMenu() {
     .catch(err => console.error("Error cargando el menú:", err));
 }
 
-
+/**
+ * Muestra el nombre del usuario activo en el campo específico del menú.
+ */
 function mostrarUsuarioActivoMenu() {
   const campo = document.getElementById('usuario-logueado');
   if (!campo) return;
@@ -21,7 +28,9 @@ function mostrarUsuarioActivoMenu() {
   campo.textContent = usuario ? usuario : "-no login-";
 }
 
-
+/**
+ * Determina el enlace del menú que corresponde a la página actual y le aplica la clase de activo.
+ */
 function setActiveLink() {
   const currentFile = window.location.pathname.split('/').pop();
   const links = document.querySelectorAll('.navbar-nav .nav-link');
@@ -42,7 +51,9 @@ function setActiveLink() {
   });
 }
 
-
+/**
+ * Configura los eventos para la animación del menú de navegación en dispositivos móviles (icono de hamburguesa).
+ */
 function mobileMenuAnimation() {
   const menuIcon = document.getElementById('menu-icon');
   const navbar = document.querySelector('.navbar');
@@ -60,6 +71,5 @@ function mobileMenuAnimation() {
     navbar.classList.remove('show-fullscreen');
   });
 }
-
 
 window.addMenu = addMenu;

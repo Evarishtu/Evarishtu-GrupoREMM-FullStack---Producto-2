@@ -1,3 +1,6 @@
+/**
+ * Añade un nuevo usuario a localStorage después de validar los campos (nombre, email, password) y verificar unicidad del email.
+ */
 function addUsuario() {
   const nombreInput = document.getElementById('nombre');
   const emailInput = document.getElementById('email');
@@ -52,11 +55,18 @@ function addUsuario() {
   document.getElementById('altaUsuario').reset();
 }
 
+/**
+ * Elimina un usuario de localStorage usando su índice y actualiza la tabla de la vista.
+ * @param {number} indice - El índice del usuario a eliminar.
+ */
 function eliminarUsuario(indice) {
   borrarUsuarioPorIndice(indice);
   mostrarDatosUsuarios();
 }
 
+/**
+ * Renderiza la lista de usuarios en la tabla de Consulta de Usuarios (usuarios.html).
+ */
 function mostrarDatosUsuarios() {
   const cuerpo = document.querySelector('#consulta');
   const listaUsuarios = obtenerUsuarios();
@@ -81,6 +91,9 @@ function mostrarDatosUsuarios() {
   });
 }
 
+/**
+ * Actualiza el campo de usuario logueado en la vista actual.
+ */
 function actualizarUsuarioActivo() {
   const activo = obtenerUsuarioActivo();
   const campo = document.getElementById('usuario-logueado');

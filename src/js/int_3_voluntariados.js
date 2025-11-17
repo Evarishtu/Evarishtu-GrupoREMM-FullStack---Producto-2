@@ -2,6 +2,10 @@ const DB_NAME = "VoluntariadoDB";
 const DB_VERSION = 2;
 let db = null;
 
+/**
+ * Abre la conexión con la base de datos IndexedDB, creando el store 'voluntariados' si es necesario.
+ * @returns {Promise<IDBDatabase>} Promesa que resuelve con la conexión a la BD.
+ */
 function abrirBDVoluntariados() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -31,6 +35,10 @@ function abrirBDVoluntariados() {
   });
 }
 
+/**
+ * Obtiene todos los registros de voluntariados desde IndexedDB.
+ * @returns {Promise<Array<Object>>} Promesa que resuelve con la lista de voluntariados.
+ */
 function obtenerVoluntariadosBD() {
   return new Promise((resolve) => {
     const tx = db.transaction("voluntariados", "readonly");
@@ -188,6 +196,9 @@ function dibujarGrafico(data) {
     });
 }
 
+/**
+ * Muestra los datos de los voluntariados en la tabla de Consulta y Borrado (voluntariados.html).
+ */
 async function mostrarDatosVoluntariados() {
   const cuerpo = document.querySelector('#consultaVoluntariados');
   cuerpo.innerHTML = "";
@@ -197,7 +208,6 @@ async function mostrarDatosVoluntariados() {
   let delay = 0;
 
   lista.forEach(v => {
-    const imagenUrl = v.imagenFondo || 'https://www.minino.com/wp-content/uploads/2025/01/nota-de-blog-31-enero.png.webp'; // Cambia 'placeholder.png' por una imagen por defecto o un icono.
     const imagenDisplay = v.imagenFondo ? 
       `<img src="${v.imagenFondo}" alt="Imagen" style="width: 50px; height: 50px; object-fit: cover;">` :
       `<span>Sin Imagen</span>`;
@@ -222,6 +232,10 @@ async function mostrarDatosVoluntariados() {
   });
 }
 
+/**
+ * Añade un nuevo registro de voluntariado a IndexedDB, validando los campos y manejando la imagen Base64.
+ * @returns {Promise<void>}
+ */
 async function addVoluntariado() {
   const titulo = document.getElementById('titulo').value.trim();
   const usuario = document.getElementById('usuario').value.trim();
@@ -281,6 +295,10 @@ async function addVoluntariado() {
   };
 }
 
+/**
+ * Elimina un registro de voluntariado de IndexedDB usando su ID.
+ * @param {number} id - El ID del voluntariado a eliminar.
+ */
 function eliminarVoluntariado(id) {
   const tx = db.transaction("voluntariados", "readwrite");
   const store = tx.objectStore("voluntariados");

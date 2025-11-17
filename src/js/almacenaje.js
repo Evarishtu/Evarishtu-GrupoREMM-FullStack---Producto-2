@@ -18,6 +18,10 @@ function inicializarUsuariosSiVacio() {
   }
 }
 
+/**
+ * Obtiene la lista completa de usuarios desde localStorage.
+ * @returns {Array<Object>} Lista de objetos de usuario, o un array vacío si no hay datos o hay un error.
+ */
 function obtenerUsuarios() {
   try {
     const data = localStorage.getItem(CLAVE_USUARIOS);
@@ -32,6 +36,10 @@ function obtenerUsuarios() {
   }
 }
 
+/**
+ * Guarda la lista de usuarios en localStorage, sobrescribiendo el contenido existente.
+ * @param {Array<Object>} lista - La lista de usuarios a guardar.
+ */
 function guardarUsuarios(lista) {
   try {
     localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(lista));
@@ -40,12 +48,20 @@ function guardarUsuarios(lista) {
   }
 }
 
+/**
+ * Crea un nuevo usuario y lo añade a la lista almacenada en localStorage.
+ * @param {Object} usuario - El objeto del nuevo usuario ({nombre, email, password}).
+ */
 function crearUsuario(usuario) {
   const lista = obtenerUsuarios();
   lista.push(usuario);
   guardarUsuarios(lista);
 }
 
+/**
+ * Borra un usuario de la lista almacenada usando su índice en el array.
+ * @param {number} indice - El índice del usuario a borrar.
+ */
 function borrarUsuarioPorIndice(indice) {
   const lista = obtenerUsuarios();
   if (indice >= 0 && indice < lista.length) {
@@ -54,6 +70,10 @@ function borrarUsuarioPorIndice(indice) {
   }
 }
 
+/**
+ * Borra un usuario de la lista almacenada usando su dirección de email.
+ * @param {string} email - El email del usuario a borrar.
+ */
 function borrarUsuarioPorEmail(email) {
   const lista = obtenerUsuarios();
   const filtrados = lista.filter(function (u) {
@@ -62,6 +82,11 @@ function borrarUsuarioPorEmail(email) {
   guardarUsuarios(filtrados);
 }
 
+/**
+ * Comprueba si ya existe un usuario con la dirección de email proporcionada.
+ * @param {string} email - El email a verificar.
+ * @returns {boolean} True si el email ya existe, False en caso contrario.
+ */
 function existeEmailUsuario(email) {
   const lista = obtenerUsuarios();
   return lista.some(function (u) {
@@ -69,6 +94,10 @@ function existeEmailUsuario(email) {
   });
 }
 
+/**
+ * Almacena el nombre del usuario que ha iniciado sesión en localStorage.
+ * @param {string} nombre - El nombre del usuario activo.
+ */
 function guardarUsuarioActivo(nombre) {
   try {
     localStorage.setItem(CLAVE_USUARIO_ACTIVO, nombre);
@@ -77,6 +106,10 @@ function guardarUsuarioActivo(nombre) {
   }
 }
 
+/**
+ * Obtiene el nombre del usuario actualmente activo desde localStorage.
+ * @returns {string|null} El nombre del usuario activo, o null si no hay sesión activa o hay un error.
+ */
 function obtenerUsuarioActivo() {
   try {
     return localStorage.getItem(CLAVE_USUARIO_ACTIVO);
@@ -86,6 +119,9 @@ function obtenerUsuarioActivo() {
   }
 }
 
+/**
+ * Elimina la clave de usuario activo de localStorage, cerrando la sesión.
+ */
 function limpiarUsuarioActivo() {
   try {
     localStorage.removeItem(CLAVE_USUARIO_ACTIVO);

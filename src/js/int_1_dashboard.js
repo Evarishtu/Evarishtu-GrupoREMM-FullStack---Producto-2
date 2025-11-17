@@ -2,7 +2,11 @@ const DB_NAME = "VoluntariadoDB";
 const DB_VERSION = 2;
 let db = null;
 
-
+/**
+ * Abre la conexión con la base de datos IndexedDB.
+ * Realiza la lógica de 'onupgradeneeded' (crear store 'voluntariados' y su índice 'titulo').
+ * @returns {Promise<IDBDatabase>} Una promesa que resuelve con el objeto de base de datos.
+ */
 function abrirBD() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -34,7 +38,10 @@ function abrirBD() {
   });
 }
 
-
+/**
+ * Comprueba si la tienda de 'voluntariados' tiene datos.
+ * @returns {Promise<boolean>} True si hay datos, False si está vacía o hay un error.
+ */
 function voluntariadosExisten() {
   return new Promise((resolve) => {
     const tx = db.transaction("voluntariados", "readonly");
@@ -47,7 +54,10 @@ function voluntariadosExisten() {
   });
 }
 
-
+/**
+ * Inserta los datos iniciales de 'window.voluntariados' en IndexedDB.
+ * @returns {Promise<boolean>} Una promesa que resuelve a True al completarse la transacción.
+ */
 function guardarVoluntariadosIniciales() {
   return new Promise((resolve) => {
     const tx = db.transaction("voluntariados", "readwrite");
@@ -59,6 +69,10 @@ function guardarVoluntariadosIniciales() {
   });
 }
 
+/**
+ * Obtiene todos los registros de voluntariados desde IndexedDB.
+ * @returns {Promise<Array<Object>>} Una promesa que resuelve con la lista de voluntariados.
+ */
 function obtenerVoluntariados() {
   return new Promise((resolve) => {
     const tx = db.transaction("voluntariados", "readonly");
@@ -71,6 +85,9 @@ function obtenerVoluntariados() {
   });
 }
 
+/**
+ * Muestra el nombre del usuario activo en el campo del dashboard (por ID).
+ */
 function mostrarUsuarioActivoDashboard() {
   const nombre = obtenerUsuarioActivo();
   const campo = document.getElementById("usuario-logueado");
@@ -80,6 +97,11 @@ function mostrarUsuarioActivoDashboard() {
   }
 }
 
+/**
+ * Renderiza la lista de tarjetas de voluntariado en el dashboard.
+ * Llama a addFlipCardListener después de la renderización.
+ * @param {Array<Object>} voluntariadosList - Lista de voluntariados a mostrar.
+ */
 function mostrarDashboard(voluntariadosList) {
   const data_ofertas = document.querySelector('#ofertas');
   data_ofertas.innerHTML = '';
