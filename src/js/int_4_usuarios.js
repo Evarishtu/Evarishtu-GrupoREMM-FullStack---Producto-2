@@ -62,6 +62,7 @@ function addUsuario() {
 function eliminarUsuario(indice) {
   borrarUsuarioPorIndice(indice);
   mostrarDatosUsuarios();
+  actualizarUsuarioActivo();
 }
 
 /**

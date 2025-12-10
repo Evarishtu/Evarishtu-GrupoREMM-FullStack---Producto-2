@@ -143,14 +143,18 @@
     transform: rotateY(180deg); 
 }
 
-@media (max-width: 767.98px) {
-    .flip-card {
-        height: 300px; 
-    }
-}
-
 .repeat-two {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+}
+
+@media (max-width: 767.98px) {
+    .flip-card {
+        height: 300px; 
+    }
+
+     .repeat-two {
+        grid-template-columns: 1fr; 
+    }
 }

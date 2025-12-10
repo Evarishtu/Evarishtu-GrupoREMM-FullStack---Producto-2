@@ -218,26 +218,46 @@ function saveLayout() {
  * Carga la disposición de las tarjetas desde localStorage y las reubica en el DOM.
  */
 function loadLayout() {
-  const raw = localStorage.getItem("layout");
-  if (!raw) return;
-  let layout;
-  try {
-    layout = JSON.parse(raw);
-  } catch (e) {
-    console.error("Could not parse saved layout:", e);
-    return;
-  }
+    const raw = localStorage.getItem("layout");
+    if (!raw) return;
+    let layout;
+    try {
+        layout = JSON.parse(raw);
+    } catch (e) {
+        console.error("Could not parse saved layout:", e);
+        return;
+    }
+    
+    // Indicador para saber si el layout de localStorage contiene referencias obsoletas
+    let layoutCambiado = false; 
 
-  Object.keys(layout).forEach(boxId => {
-    const box = document.getElementById(boxId);
-    if (!box) return;
-    layout[boxId].forEach(itemId => {
-      const item = document.getElementById(itemId);
-      if (item) box.appendChild(item);
+    Object.keys(layout).forEach(boxId => {
+        const box = document.getElementById(boxId);
+        if (!box) return;
+
+        // Filtrar solo los IDs que existen realmente en el DOM (renderizados desde la DB)
+        const idsExistentes = layout[boxId].filter(itemId => {
+            const item = document.getElementById(itemId);
+            if (item) {
+                box.appendChild(item);
+                return true; // Conservar el ID
+            }
+            layoutCambiado = true; // El elemento no existe, el layout está obsoleto
+            return false; // Descartar el ID
+        });
+
+        // Si se tuvo que filtrar algún ID, actualizamos el layout para el guardado.
+        if (layoutCambiado) {
+             layout[boxId] = idsExistentes;
+        }
     });
-  });
-}
 
+    // Si se encontró algún elemento eliminado, guardamos el layout limpio.
+    if (layoutCambiado) {
+        // Guardamos solo si fue necesario limpiar referencias
+        localStorage.setItem("layout", JSON.stringify(layout));
+    }
+}
 
 document.addEventListener('DOMContentLoaded', async function () {
 

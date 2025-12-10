@@ -63,11 +63,21 @@ function crearUsuario(usuario) {
  * @param {number} indice - El índice del usuario a borrar.
  */
 function borrarUsuarioPorIndice(indice) {
-  const lista = obtenerUsuarios();
-  if (indice >= 0 && indice < lista.length) {
-    lista.splice(indice, 1);
-    guardarUsuarios(lista);
-  }
+    const lista = obtenerUsuarios();
+    
+    if (indice >= 0 && indice < lista.length) {
+        // Obtener el nombre del usuario a borrar antes de eliminarlo
+        const usuarioBorrado = lista[indice].nombre; 
+        
+        // Eliminar el usuario
+        lista.splice(indice, 1);
+        guardarUsuarios(lista);
+
+        //  Si el usuario borrado era el activo, cerrar sesión
+        if (usuarioBorrado === obtenerUsuarioActivo()) {
+            limpiarUsuarioActivo();
+        }
+    }
 }
 
 /**
@@ -75,11 +85,23 @@ function borrarUsuarioPorIndice(indice) {
  * @param {string} email - El email del usuario a borrar.
  */
 function borrarUsuarioPorEmail(email) {
-  const lista = obtenerUsuarios();
-  const filtrados = lista.filter(function (u) {
-    return u.email !== email;
-  });
-  guardarUsuarios(filtrados);
+    const lista = obtenerUsuarios();
+    
+    // Buscar el usuario a borrar para ver si es el activo
+    const usuarioABorrar = lista.find(u => u.email === email);
+    const nombreUsuarioABorrar = usuarioABorrar ? usuarioABorrar.nombre : null;
+
+    // Filtrar la lista
+    const filtrados = lista.filter(function (u) {
+        return u.email !== email;
+    });
+    
+    guardarUsuarios(filtrados);
+
+    // Si el usuario borrado era el activo, cerrar sesión
+    if (nombreUsuarioABorrar && nombreUsuarioABorrar === obtenerUsuarioActivo()) {
+        limpiarUsuarioActivo();
+    }
 }
 
 /**
