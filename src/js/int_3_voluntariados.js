@@ -39,7 +39,10 @@ function abrirBDVoluntariados() {
  * Obtiene todos los registros de voluntariados desde IndexedDB.
  * @returns {Promise<Array<Object>>} Promesa que resuelve con la lista de voluntariados.
  */
-function obtenerVoluntariadosBD() {
+async function obtenerVoluntariadosBD() {
+  if (!db) {
+    await abrirBDVoluntariados();
+  }
   return new Promise((resolve) => {
     const tx = db.transaction("voluntariados", "readonly");
     const store = tx.objectStore("voluntariados");

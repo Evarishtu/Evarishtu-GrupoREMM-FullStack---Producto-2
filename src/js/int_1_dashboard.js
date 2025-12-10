@@ -106,13 +106,13 @@ function mostrarDashboard(voluntariadosList) {
   const data_ofertas = document.querySelector('#ofertas');
   data_ofertas.innerHTML = '';
 
-  voluntariadosList.forEach((item, i) => {
+  voluntariadosList.forEach((item) => {
     const typeClass = item.tipo === 'peticion' ? 'bg-dark-type text-white' : 'bg-light-type';
     const textClass = 'text-white';
 
     const fila = `
-      <div class="flip-card" id="item-${i}" draggable="true" ondragstart="dragstartHandler(event)">
-        <div class="flip-card-inner" data-id="${i}">
+      <div class="flip-card" id="item-${item.id}" draggable="true" ondragstart="dragstartHandler(event)">
+        <div class="flip-card-inner" data-id="${item.id}">
           <div class="card p-3 card-front ${typeClass}">
             <h5 class="card-title-lg ${textClass}">${item.titulo}</h5>
             <p class="card-subtitle-sm mb-2 ${textClass}">${item.fecha}</p>
