@@ -107,6 +107,7 @@ function mostrarDashboard(voluntariadosList) {
   data_ofertas.innerHTML = '';
 
   voluntariadosList.forEach((item) => {
+    if (!item.id) return; // Ignora elementos sin ID válido
     const typeClass = item.tipo === 'peticion' ? 'bg-dark-type text-white' : 'bg-light-type';
     const textClass = 'text-white';
 
